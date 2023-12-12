@@ -17,9 +17,6 @@ namespace O_LoebSeleniumUITest
         public static void Setup(TestContext testContext)
         {
             driver = new ChromeDriver(DriverDir);
-
-            // Static navigation to our site
-            driver.Navigate().GoToUrl("http://127.0.0.1:5501/index.html");
         }
 
         // Cleans up the driver after it is initialized
