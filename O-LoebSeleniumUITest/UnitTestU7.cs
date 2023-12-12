@@ -19,7 +19,7 @@ namespace O_LoebSeleniumUITest
             driver = new ChromeDriver(DriverDir);
 
             // Static navigation to our site
-            driver.Navigate().GoToUrl("indsæt url");
+            driver.Navigate().GoToUrl("http://127.0.0.1:5501/index.html");
         }
 
         // Cleans up the driver after it is initialized
@@ -29,12 +29,21 @@ namespace O_LoebSeleniumUITest
             driver.Dispose();
         }
 
+        // Runs before each test
+        [TestInitialize] 
+        public void Setup() 
+        {
+            // Always goes back to the index before running tests
+            driver.Navigate().GoToUrl("http://127.0.0.1:5501/index.html");
+        }
+
         [TestMethod]
         public void TestForRunTypeCanBeSelected()
         {
+            Assert.AreEqual("O-løb", driver.Title);
 
             // Selecting the dropdown menu
-            IWebElement dropDown = driver.FindElement(By.Id("run-types"));
+            IWebElement dropDown = driver.FindElement(By.ClassName("dropdown"));
 
             SelectElement select = new SelectElement(dropDown);
 
@@ -42,53 +51,85 @@ namespace O_LoebSeleniumUITest
 
             // Checks for the 2 options contains o-løb and stjerneløb in the text and in the correct order
 
-            Assert.AreEqual("o-løb", options[0].Text);
-            Assert.AreEqual("stjerneløb", options[1].Text);
+            Assert.AreEqual("O-løb", options[0].Text);
+            Assert.AreEqual("Stjerne-løb", options[1].Text);
 
         }
 
-        public void TestForRunCreated()
+        [TestMethod]
+        public void TestForRunCreatedOLoeb()
         {
-
             // Selecting create button
-            IWebElement createRunButton = driver.FindElement(By.Id("create-run-button"));
+            IWebElement createRunButton = driver.FindElement(By.ClassName("btn-success"));
 
+            IWebElement runNameInput = driver.FindElement(By.ClassName("rounded"));
+
+            runNameInput.SendKeys("Selenium Test O-løb");
+
+            Assert.AreEqual("Selenium Test O-løb", runNameInput.GetAttribute("value"));
 
             // Selecting dropdown menu
-            IWebElement dropDown = driver.FindElement(By.Id("run-types"));
+            IWebElement dropDown = driver.FindElement(By.ClassName("dropdown"));
 
             SelectElement select = new SelectElement(dropDown);
 
-            var options = select.SelectedOption;
+            select.SelectByIndex(0);
 
+            var option = select.SelectedOption;
 
-            // Checks if the selcted option in the dropdown menu contains o-løb or stjerneløb
+            Assert.AreEqual("O-løb", option.Text);
 
-            if (options.Text == "o-løb")
-            {
-                createRunButton.Click();
+            createRunButton.Click();
 
-                driver.Navigate().GoToUrl("indsæt url/createoloeb");
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
-                string expectedUrl = "indsæt url/createoloeb";
+            IAlert alert = wait.Until(a => a.SwitchTo().Alert());
 
-                Assert.AreEqual(expectedUrl, driver.Url);
+            Assert.AreEqual("Run was added", alert.Text);
 
-            }
-            else if (options.Text == "stjerneløb")
-            {
+            alert.Accept();
 
-                createRunButton.Click();
+            wait.Until(u => u.Url.Contains("post.html"));
 
-                driver.Navigate().GoToUrl("indsæt url/createstjerneloeb");
+            Assert.AreEqual("O-løb", driver.Title);
+        }
 
-                string expectedUrl = "indsæt url/createstjerneloeb";
+        [TestMethod]
+        public void TestForRunCreatedStjerneLoeb()
+        {
+            // Selecting create button
+            IWebElement createRunButton = driver.FindElement(By.ClassName("btn-success"));
 
-                Assert.AreEqual(expectedUrl, driver.Url);
+            IWebElement runNameInput = driver.FindElement(By.ClassName("rounded"));
 
-            }
+            runNameInput.SendKeys("Selenium Test Stjerne-løb");
 
+            Assert.AreEqual("Selenium Test Stjerne-løb", runNameInput.GetAttribute("value"));
 
+            // Selecting dropdown menu
+            IWebElement dropDown = driver.FindElement(By.ClassName("dropdown"));
+
+            SelectElement select = new SelectElement(dropDown);
+
+            select.SelectByIndex(1);
+
+            var option = select.SelectedOption;
+
+            Assert.AreEqual("Stjerne-løb", option.Text);
+
+            createRunButton.Click();
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+
+            IAlert alert = wait.Until(a => a.SwitchTo().Alert());
+
+            Assert.AreEqual("Run was added", alert.Text);
+
+            alert.Accept();
+
+            wait.Until(u => u.Url.Contains("post.html"));
+
+            Assert.AreEqual("O-løb", driver.Title);
         }
     }
 }
