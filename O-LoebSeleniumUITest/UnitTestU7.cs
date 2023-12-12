@@ -31,7 +31,7 @@ namespace O_LoebSeleniumUITest
         public void Setup() 
         {
             // Always goes back to the index before running tests
-            driver.Navigate().GoToUrl("http://127.0.0.1:5501/index.html");
+            driver.Navigate().GoToUrl(Constants.Url);
         }
 
         [TestMethod]
