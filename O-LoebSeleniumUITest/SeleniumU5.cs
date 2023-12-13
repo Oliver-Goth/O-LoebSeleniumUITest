@@ -99,6 +99,21 @@ namespace O_LoebSeleniumUITest
             Assert.IsTrue(string.IsNullOrEmpty(questionTextarea.Text));
 
             // Write answers
+            ReadOnlyCollection<IWebElement> answerInputs = driver.FindElements(By.CssSelector("input[class=w-75]"));
+            Assert.IsTrue(answerInputs.Count() == 4);
+            for(int i = 0; i < answerInputs.Count(); i++)
+            {
+                answerInputs[i].SendKeys("Selenium svar " + i);
+            }
+
+            IWebElement addQuestionButton = wait.Until(q => q.FindElement(By.ClassName("btn-success")));
+            Assert.IsNotNull(addQuestionButton);
+            addQuestionButton.Click();
+
+            // Handle alert box
+            IAlert alert = wait.Until(a => a.SwitchTo().Alert());
+            Assert.AreEqual("Spørgsmål og svar tilføjet", alert.Text);
+            alert.Accept();
         }
     }
 }
