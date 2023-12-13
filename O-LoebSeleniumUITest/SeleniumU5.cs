@@ -9,6 +9,7 @@ using OpenQA.Selenium.Support.UI;
 using System.Collections.ObjectModel;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Interactions;
+using NuGet.Frameworks;
 
 namespace O_LoebSeleniumUITest
 {
@@ -83,11 +84,21 @@ namespace O_LoebSeleniumUITest
             Assert.IsNotNull(secondSpan);
             Assert.IsNotNull(secondSpan.Text.Split(":")[1]);
 
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+
             // Check random question
-            IWebElement randomQuestionButton = driver.FindElement(By.ClassName("btn-primary"));
+            IWebElement randomQuestionButton = wait.Until(q => q.FindElement(By.ClassName("btn-primary")));
             Assert.IsNotNull(randomQuestionButton);
-            // element click intercepted: Element is not clickable at point (1204, 752)
+            // Need to force the element into view before it can be clicked
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", randomQuestionButton);
+            // Need to force a sleep for the element to be clickable
+            Thread.Sleep(1000);
             randomQuestionButton.Click();
+            IWebElement questionTextarea = driver.FindElement(By.CssSelector("textarea[class=w-100]"));
+            Assert.IsNotNull(questionTextarea);
+            Assert.IsTrue(string.IsNullOrEmpty(questionTextarea.Text));
+
+            // Write answers
         }
     }
 }
