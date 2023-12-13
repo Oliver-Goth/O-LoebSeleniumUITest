@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenQA.Selenium.Support.UI;
 using System.Collections.ObjectModel;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.Interactions;
 
 namespace O_LoebSeleniumUITest
 {
@@ -22,6 +24,7 @@ namespace O_LoebSeleniumUITest
         public static void Setup(TestContext testContext)
         {
             driver = new ChromeDriver(DriverDir);
+            driver.Manage().Window.Maximize();
         }
 
         // Cleans up the driver after it is initialized
@@ -42,6 +45,8 @@ namespace O_LoebSeleniumUITest
         [TestMethod]
         public void AddQuestionToQuiz() 
         {
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+
             Assert.AreEqual("O-løb", driver.Title);
 
             // Get all posts and ensure there are more than 0
@@ -77,6 +82,12 @@ namespace O_LoebSeleniumUITest
             IWebElement secondSpan = cardSpans[1];
             Assert.IsNotNull(secondSpan);
             Assert.IsNotNull(secondSpan.Text.Split(":")[1]);
+
+            // Check random question
+            IWebElement randomQuestionButton = driver.FindElement(By.ClassName("btn-primary"));
+            Assert.IsNotNull(randomQuestionButton);
+            // element click intercepted: Element is not clickable at point (1204, 752)
+            randomQuestionButton.Click();
         }
     }
 }
