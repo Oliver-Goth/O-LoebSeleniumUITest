@@ -44,29 +44,68 @@ namespace O_LoebSeleniumUITest
         {
             Assert.AreEqual("O-løb", driver.Title);
 
+            // Gets run list and checks if it has elements
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
-
             ReadOnlyCollection<IWebElement> listOfRuns = wait.Until(run => run.FindElements(By.ClassName("bg-primary")));
-
             Assert.IsTrue(listOfRuns.Count > 0);
 
+            // Chooses first run in list and clicks it
             IWebElement? firstRun = listOfRuns.FirstOrDefault();
-
             Assert.IsNotNull(firstRun);
-
             firstRun.Click();
 
+            // Checks if the name of the run is not null
             IWebElement chosenRun = driver.FindElement(By.ClassName("px-4"));
-
             IWebElement secondH5 = chosenRun.FindElements(By.TagName("h5"))[1];
-
             Assert.IsNotNull(secondH5);
-
             Assert.IsNotNull(secondH5.Text);
 
+            // Checks if the runtype is of the known type
             IWebElement secondH6 = chosenRun.FindElements(By.TagName("h6"))[1];
-
             Assert.IsTrue(secondH6.Text == "O-løb" || secondH6.Text == "Stjerne-løb");
+
+            // Find input elements to test create post
+            ReadOnlyCollection<IWebElement> postInputs = driver.FindElements(By.CssSelector("input[class=mb-3]"));
+            Assert.IsTrue(postInputs.Count == 2);
+            
+            // Finds name element, writes in it and checks
+            IWebElement nameInput = postInputs[0];
+            Assert.IsNotNull(nameInput);
+            nameInput.SendKeys("Post Selenium test");
+            Assert.AreEqual("Post Selenium test", nameInput.GetAttribute("value"));
+
+            // Finds radius element, writes in it and checks
+            IWebElement radiusInput = postInputs[1];
+            Assert.IsNotNull(radiusInput);
+            // Had to invoke clear, otherwise there would always be a leading zero
+            radiusInput.Clear();
+            radiusInput.SendKeys("100");
+            Assert.AreEqual("100", radiusInput.GetAttribute("value"));
+
+            // Find latitude/longitude inputs
+            ReadOnlyCollection<IWebElement> tudeInputs = driver.FindElements(By.CssSelector("input[class*='mt-2 w-50']"));
+            Assert.AreEqual(2,tudeInputs.Count);
+
+            // Test latitude input field
+            IWebElement latitudeInput = tudeInputs[0];
+            Assert.IsNotNull(latitudeInput);
+            latitudeInput.Clear();
+            latitudeInput.SendKeys("55");
+            Assert.AreEqual("55",latitudeInput.GetAttribute("value"));
+
+            // Test longitude input field
+            IWebElement longitudeInput = tudeInputs[1];
+            Assert.IsNotNull(longitudeInput);
+            longitudeInput.Clear();
+            longitudeInput.SendKeys("12");
+            Assert.AreEqual("12",longitudeInput.GetAttribute("value"));
+
+            // Find button and click
+            WebDriverWait secondWait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+            IWebElement createPostButton = secondWait.Until(run => run.FindElement(By.ClassName("btn-primary")));
+            Assert.IsNotNull(createPostButton);
+            // Button is not clickable, according to Selenium
+            createPostButton.Click();
         }
     }
 }
