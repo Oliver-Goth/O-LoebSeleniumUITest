@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using OpenQA.Selenium.Support.UI;
+using NuGet.Frameworks;
 
 namespace O_LoebSeleniumUITest
 {
@@ -104,8 +105,25 @@ namespace O_LoebSeleniumUITest
             WebDriverWait secondWait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
             IWebElement createPostButton = secondWait.Until(run => run.FindElement(By.CssSelector("button[class*='btn btn-primary p-1 fs-5 mt-2']")));
             Assert.IsNotNull(createPostButton);
-            // Button is not clickable, according to Selenium
-            //createPostButton.Click();
+            // Seleniun can't click elements outside it's window view. Force scrolling to the button 
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", createPostButton);
+            // Need to force a sleep for the element to be clickable
+            Thread.Sleep(1000);
+            createPostButton.Click();
+
+            // Check if post has been added to list
+            ReadOnlyCollection<IWebElement> postAdded = secondWait.Until(p => p.FindElements(By.CssSelector("div[class*='w-100 max-h']")));
+            Assert.IsNotNull(postAdded);
+            Assert.IsTrue(postAdded.Count > 0);
+
+            // Find add post to run button and click
+            IWebElement addPostsButton = secondWait.Until(a => a.FindElement(By.ClassName("btn-success")));
+            Assert.IsNotNull(addPostsButton);
+            addPostsButton.Click();
+
+            // Handle alert box
+            IAlert alert = wait.Until(a => a.SwitchTo().Alert());
+            Assert.AreEqual("Posterne blev tilføjet", alert.Text);
         }
     }
 }
